@@ -87,3 +87,18 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+data/db/anime.sqlite
+data/db/movie.sqlite
+
+data/raw/anime/anime.csv
+data/raw/anime/rating.csv
+
+data/raw/ml-1m/README
+data/raw/ml-1m/movies.dat
+data/raw/ml-1m/ratings.dat
+data/raw/ml-1m/users.dat
+
+models/cosine.json
+models/factorization.pkl
+models/regression.pkl
