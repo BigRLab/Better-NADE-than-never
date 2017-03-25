@@ -1,28 +1,38 @@
-'''Cf-Nade recommender System
-'''
-from tensorflow import Variable
-import tensorflow as tf
-from tensorflow import nn
-import numpy as np
-
-n_user = 1
-n_item = 5
-hidden_size = 10
-
-X = np.array([[2, 0, 0, 0, 5]], dtype=tf.int32)
-y = np.array([[]])
+from __future__ import print_function
+from keras.layers import Dense, Activation, Reshape, Conv2D
+from keras.models import Sequential
+from keras import backend as K
+from keras.utils import vis_utils
 
 
-R = tf.placeholder()
-W = Variable(shape=(n_item, hidden_size), name='W', dtype=tf.float32)
-c = Variable(shape=(1, hidden_size), name='c', dtype=tf.float32)
+n_item = 10
+hidden_size = 128
+encoding_size = 64
+n_rating = 5
+n_hidden = 1
 
-V = Variable(shape=(hidden_size, n_item), name='V', dtype=tf.float32)
-b = Variable(shape=(1, n_item), name='b', dtype=tf.float32)
 
-embedded_vectors  = nn.embedding_lookup(W, R)
-vector_sum = tf.reduce_sum(lookup, axis=0)
-h = tf.tanh(c + vector_sum)
-p = nn.softmax(b + V * h)
+def cf_nade(n_item, n_rating, n_hidden, hidden_size, encoding_size):
+    input_block = (
+        Dense(encoding_size, input_shape=(n_item * n_rating,), use_bias=False),
+        Dense(hidden_size),
+        Activation('tanh')
+    )
+    hidden_block = n_hidden * (
+        Dense(hidden_size, activation='tanh'),
+    )
+    output_block = (
+        Dense(encoding_size, use_bias=False),
+        Dense(n_item * n_rating),
+        Reshape((n_rating, n_item, 1)),
+        Conv2D(1, 1),
+        Reshape((n_rating, n_item)),
+        Activation('softmax')
+    )
+    nade = Sequential(input_block + hidden_block + output_block)
+    nade.compile(optimizer='adam', loss='categorical_crossentropy')
 
-cost = nn.cross_entropy(p, y)
+
+if __name__ == '__main__':
+    print (nade.summary())
+    vis_utils.plot_model(nade, to_file='nade_model.png')
